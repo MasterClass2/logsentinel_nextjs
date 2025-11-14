@@ -1,0 +1,58 @@
+{
+  "name": "logsentinel-nextjs",
+  "version": "0.1.0",
+  "description": "Lightweight, non-blocking observability SDK for Next.js applications",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "npx tsc",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "lint": "eslint src --ext .ts",
+    "prepublishOnly": "npm run build",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0",
+    "eslint": "^8.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0"
+  },
+  "peerDependencies": {
+    "next": ">=13.0.0"
+  },
+  "keywords": [
+    "nextjs",
+    "logging",
+    "observability",
+    "monitoring",
+    "sdk",
+    "analytics",
+    "apm",
+    "middleware"
+  ],
+  "author": "Eliakim Mwita",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MasterClass2/logsentinel_nextjs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MasterClass2/logsentinel-nextjs/issues"
+  },
+  "homepage": "https://sentinel.ipvs.cloud"
+}
