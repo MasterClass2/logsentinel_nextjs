@@ -11,6 +11,7 @@ export interface LogSentinelConfig {
   batchInterval?: number; // Milliseconds to wait before sending batch
   maxQueueSize?: number; // Max logs to keep in memory
   timeout?: number; // Request timeout in milliseconds
+  captureResponseBody?: boolean; // App Router: best-effort response body capture (default: false)
   debug?: boolean; // Enable detailed logging for troubleshooting
 }
 

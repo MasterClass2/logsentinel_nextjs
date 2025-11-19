@@ -43,7 +43,7 @@ describe('withLogSentinel', () => {
   });
 
   it('should pass through when SDK is disabled', async () => {
-    // No env vars set — SDK should be disabled
+    // No env vars set ===> SDK should be disabled
     delete process.env.LOGSENTINEL_API_KEY;
     delete process.env.LOGSENTINEL_BASE_URL;
 

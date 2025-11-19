@@ -25,6 +25,7 @@
  */
 
 export { logSentinelMiddleware, withLogSentinel } from './middleware';
+export { withLogSentinelAppRouter } from './app-router-wrapper';
 export { getConfig, getCachedConfig, resetConfig } from './config';
 export { getClient, resetClient } from './client';
 export type { LogSentinelConfig, LogPayload, LogBatch } from './types';

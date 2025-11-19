@@ -129,4 +129,4 @@ MIT © LogSentinel
 
 ## Need Help?
 
--  Email: develiakim52@gmail.com
+-  Email: eliakimdev52@gmail.com

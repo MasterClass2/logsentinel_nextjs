@@ -94,7 +94,7 @@ export class LogSentinelClient {
 
   /**
    * Send batch with retry logic (exponential backoff: 1s, 2s, 4s)
-   * Why exponential? Because the server will need time to recover, not more requests
+   * Why exponential? Because the server will need time to recover if something goes wrong, not more requests
    */
   private async sendBatch(batch: LogBatch, attempt = 1): Promise<void> {
     const maxAttempts = 3;
@@ -139,7 +139,7 @@ export class LogSentinelClient {
     }
 
     try {
-      const response = await fetch(this.config.baseUrl, {
+      const response = await fetch(`${this.config.baseUrl}/api/sdk/logs`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -7,6 +7,7 @@ const DEFAULT_CONFIG: Partial<LogSentinelConfig> = {
   batchInterval: 5000, // 5 seconds
   maxQueueSize: 1000,
   timeout: 5000, // 5 seconds
+  captureResponseBody: false, // Disabled by default for performance
 };
 
 /**
@@ -43,6 +44,7 @@ export function getConfig(): LogSentinelConfig | null {
     batchInterval: parseInt(process.env.LOGSENTINEL_BATCH_INTERVAL || '5000', 10),
     maxQueueSize: parseInt(process.env.LOGSENTINEL_MAX_QUEUE_SIZE || '1000', 10),
     timeout: parseInt(process.env.LOGSENTINEL_TIMEOUT || '5000', 10),
+    captureResponseBody: process.env.LOGSENTINEL_CAPTURE_RESPONSE_BODY === 'true',
     debug,
   };
 

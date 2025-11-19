@@ -4,6 +4,31 @@ import { getClient } from './client';
 import { LogPayload } from './types';
 import { generateTraceId, sanitizeHeaders, sanitizeBody } from './utils';
 
+// added helper
+function headersToObject(headers: unknown): Record<string, string> {
+  const out: Record<string, string> = {};
+
+  if (!headers) return out;
+
+  try {
+    const h: any = headers;
+    if (typeof h.forEach === 'function') {
+      h.forEach((value: string, key: string) => {
+        out[String(key)] = String(value);
+      });
+      return out;
+    }
+
+    const entries = Array.from(h as Iterable<[string, string]> || []);
+    if (entries.length) {
+      for (const [k, v] of entries) out[String(k)] = String(v);
+      return out;
+    }
+  } catch {}
+
+  return out;
+}
+
 /**
  * Middleware for Next.js App Router (middleware.ts)
  * Captures all incoming requests and responses
@@ -40,6 +65,36 @@ export function logSentinelMiddleware(request: NextRequest): NextResponse | Prom
       requestBody = undefined;
     }
 
+    // Best-effort response body capture (App Router limitation workaround)
+    let responseBody: any = undefined;
+    
+    if (config.captureResponseBody) {
+      try {
+        const clone = response.clone();
+        const contentType = response.headers.get('content-type');
+        const contentLength = response.headers.get('content-length');
+        
+        // Only attempt for small JSON responses (< 1MB) to avoid performance issues
+        if (contentType?.includes('application/json') && 
+            (!contentLength || parseInt(contentLength) < 1048576)) {
+          
+          // Race against timeout (100ms max) to prevent blocking
+          responseBody = await Promise.race([
+            clone.json(),
+            new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('timeout')), 100)
+            )
+          ]);
+        }
+      } catch (error) {
+        // Silent failure - response body capture is best-effort
+        if (config.debug) {
+          console.log('[LogSentinel Debug] Could not capture response body:', 
+            (error as Error).message);
+        }
+      }
+    }
+
     const logPayload: LogPayload = {
       traceId,
       timestamp: new Date().toISOString(),
@@ -47,14 +102,13 @@ export function logSentinelMiddleware(request: NextRequest): NextResponse | Prom
       path: request.nextUrl.pathname,
       statusCode: response.status,
       duration,
-      requestHeaders: sanitizeHeaders(Object.fromEntries(request.headers)),
-      responseHeaders: sanitizeHeaders(Object.fromEntries(response.headers)),
+      requestHeaders: sanitizeHeaders(headersToObject(request.headers)),
+      responseHeaders: sanitizeHeaders(headersToObject(response.headers)),
       requestBody: requestBody ? sanitizeBody(requestBody) : undefined,
-      // Note: Response body is harder to extract in middleware without consuming it, so we avoid it for now. if it becomes necessary in the future...
-      responseBody: undefined,
+      responseBody: responseBody ? sanitizeBody(responseBody) : undefined,
       metadata: {
         userAgent: request.headers.get('user-agent'),
-        ip: request.headers.get('x-forwarded-for') || request.ip,
+        ip: request.headers.get('x-forwarded-for') || 'unknown',
         query: Object.fromEntries(request.nextUrl.searchParams),
       },
     };
@@ -143,7 +197,7 @@ export function withLogSentinel<T = any>(
 
       return result;
     } catch (error) {
-      // Log errors too (this is basically why we and our SDK exist in the first place)
+      // Log errors too
       Promise.resolve().then(() => {
         const duration = Date.now() - startTime;
 
@@ -168,7 +222,7 @@ export function withLogSentinel<T = any>(
         client.log(logPayload);
       });
 
-      throw error; // Re-throw to preserve original behavior
+      throw error;
     }
   };
 }

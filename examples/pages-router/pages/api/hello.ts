@@ -31,5 +31,5 @@ async function handler(
   res.status(200).json(data);
 }
 
-// Export the wrapped handler — LogSentinel will automatically log it
+// Export the wrapped handler; LogSentinel will automatically log it
 export default withLogSentinel(handler);
